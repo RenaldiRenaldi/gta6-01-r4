@@ -1,0 +1,6 @@
+out/
+out-verify/
+node_modules/
+*.log
+screenshots/.capture-*
+.DS_Store

@@ -1,0 +1,11 @@
+{
+  "viewport": {"width":960,"height":600},
+  "format":"jpeg",
+  "capture":"Direct Chromium render; no compositing; 960x600; each image at most 81920 bytes",
+  "shots":[
+    {"file":"1-summer-hero.jpg","url":"/?shot=summer","season":"SUMMER","description":"163 km/h five-star reserve escape after the storm. Falcon searchlight, six police cars, burning barricade, citizens against police, wet neon and readable crew comms."},
+    {"file":"2-spring-market.jpg","url":"/?shot=spring","season":"SPRING","description":"Shotgun cover battle in a crowded blossom market during light showers; shoppers, vendors, police pursuit, mission timer and dispatch."},
+    {"file":"3-autumn-flight.jpg","url":"/?shot=autumn","season":"AUTUMN","description":"Mara's playable Kite over orange foliage and dense mixed-use blocks; roof extraction, altitude, flight controls, traffic and people."},
+    {"file":"4-winter-lockdown.jpg","url":"/?shot=winter","season":"WINTER","description":"Snowy neon five-star run; helicopter searchlight, burning wreck and smoke, police lights and road reflections."}
+  ]
+}

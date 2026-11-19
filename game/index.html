@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#142433">
+<title>Solmara: The Burning Mile</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<canvas id="world" aria-label="Solmara open world"></canvas>
+<div id="hud">
+  <header><div class="brand">SOLMARA<span>THE BURNING MILE</span></div><div id="climate"></div><div id="money"></div></header>
+  <section id="mission" class="panel"><div class="eyebrow" id="contact"></div><h2 id="job"></h2><div id="objective"></div><div class="stage"><span id="stage"></span><b id="timer"></b></div><div class="bar"><i id="progress"></i></div><small id="next"></small></section>
+  <section id="pursuit" class="panel"><div id="stars"></div><div class="eyebrow" id="policestate"></div><div id="roster"></div></section>
+  <div id="dispatch"></div>
+  <section id="dialogue" class="panel"><canvas id="portrait" width="72" height="86"></canvas><div><span id="speaker"></span><p id="line"></p></div></section>
+  <section id="navigation"><canvas id="map" width="184" height="144"></canvas><div id="district"></div><div class="bar health"><i id="health"></i></div><small id="collect"></small></section>
+  <section id="radio"><b>SOL WAVE <em>98.4</em></b><div id="track"></div><small id="dj"></small></section>
+  <section id="telemetry"><div id="speed"></div><div id="vehicle"></div><div class="meterlabel">CAR CONDITION <b id="condition"></b></div><div class="bar"><i id="hull"></i></div><div class="meterlabel">NITRO RESERVE <b>SHIFT</b></div><div class="bar nitro"><i id="nitro"></i></div><small id="weapon"></small></section>
+  <div id="reticle">+</div><footer id="controls"></footer><div id="toast" role="status"></div>
+</div>
+<section id="menu" class="overlay"><div class="menucontent"><div class="eyebrow">AN ORIGINAL OPEN-WORLD CRIME STORY</div><h1>SOLMARA</h1><h3>THE BURNING MILE</h3><p>Twelve debts. One neighborhood worth saving.<br>Drive the coast. Steal the reserve. Bring your people home.</p><button id="play">ENTER THE CITY <span>↵</span></button><button id="resume">CONTINUE SAVED STORY</button><small>WASD MOVE / DRIVE · E ENTER · J STORY · CLICK FIRE<br>SHIFT NOS / SPRINT · Q COVER · H LIFT · T SEASON · ESC PAUSE</small></div></section>
+<section id="brief" class="overlay hidden"><article><div id="briefcontact" class="eyebrow"></div><h2 id="brieftitle"></h2><p id="brieftext"></p><button id="accept">ACCEPT JOB / J</button><button id="closebrief">BACK</button></article></section>
+<section id="shop" class="overlay hidden"><article><div class="eyebrow">PALMETTO CUSTOMS / ESTRELLA</div><h2>Build your way out.</h2><div id="goods"></div><button id="closeshop">CLOSE / E</button></article></section>
+<script type="module" src="./src/game.js"></script>
+</body></html>
