@@ -12,7 +12,7 @@ function mergeRigid(group,exclude=[]){const groups=new Map();for(const m of [...
   for(const [material,list] of groups){const merged=new T.BufferGeometry();for(const key of ['position','normal','uv']){const attrs=list.map(e=>e[1].attributes[key]);if(attrs.some(a=>!a))continue;const data=new Float32Array(attrs.reduce((s,a)=>s+a.array.length,0));let at=0;for(const a of attrs){data.set(a.array,at);at+=a.array.length;}merged.setAttribute(key,new T.BufferAttribute(data,attrs[0].itemSize));}for(const [m,g] of list){group.remove(m);g.dispose();}const mesh=new T.Mesh(merged,material);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);}}
 const dark=mat(0x111d28),glass=mat(0x294f61,.12),chrome=mat(0x9baeb3,.22),white=mat(0xe5e1cf);
 export function createCar(scene,x,z,color=0xe97b65,kind='MARINER GT'){
-  const mesh=new T.Group(),paint=mat(color,.24),police=kind==='POLICE',taxi=kind==='CORA TAXI';
+  const mesh=new T.Group(),paint=new T.MeshStandardMaterial({color,roughness:.24,metalness:.5}),police=kind==='POLICE',taxi=kind==='CORA TAXI';
   piece(mesh,0,.76,0,2.55,.66,5.15,paint);piece(mesh,0,.49,0,2.6,.2,4.8,dark);
   piece(mesh,0,1.26,-.25,2.14,.7,2.55,glass);piece(mesh,0,1.67,-.42,2.18,.15,2.3,police?white:paint);
   piece(mesh,0,1.2,1.05,2.18,.12,.14,paint);piece(mesh,0,1.17,-1.59,2.2,.12,.14,paint);

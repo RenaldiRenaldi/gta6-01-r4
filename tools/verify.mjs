@@ -37,6 +37,7 @@ try{
       g.input.take=oldTake;g.input.held=oldHeld;check('authored '+j.type+' success advances story',m.index===index+1&&m.status==='briefing');
     }
     g.mission.index=11;s.startMission(g);g.player.x=128;g.player.z=256;g.car=null;g.combat.kills=6;g.mission.started=true;g.mission.progress=14.99;const oldHeld=g.input.held;g.input.held=k=>k==='f';s.updateMission(g,.02);g.input.held=oldHeld;check('final vault triggers five-star riot escape',g.mission.phase===1&&g.police.heat===5&&g.effects.fighters.length===32&&g.effects.fires.length>=3);
+    const fire=g.effects.fires[0];g.player.x=fire.x;g.player.z=fire.z;g.player.y=0;g.effects.update(.1);check('burning wreck is a real damage hazard',g.health<100);
     g.player.x=0;g.player.z=-64;g.police.seen=false;g.police.lost=10;s.updateMission(g,.02);check('reserve delivery completes story',g.mission.status==='complete'&&g.save.done===12&&g.save.cash>10000);
     g.mission.index=6;s.startMission(g);g.flying=g.parkedHeli;g.flying.y=0;Object.assign(g.player,g.city.pads[0]);s.updateMission(g,.02);check('flight extraction begins after boarding',g.mission.phase===1);
     g.flying.speed=0;g.speed=0;Object.assign(g.player,g.city.pads[1]);for(let i=0;i<61;i++)s.updateMission(g,.1);check('roof landing extracts Luz',g.mission.phase===2);

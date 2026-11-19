@@ -83,6 +83,8 @@ function updateCamera(dt){const g=game,p=g.player;let target=missionTarget(g);if
   if(g.cameraSnap){camera.position.copy(desired);g.cameraSnap=false;}else camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(look);camera.fov=g.shot==='autumn'?63:g.shot?59:g.flying?62:57+Math.min(7,Math.abs(g.speed)*.08);camera.updateProjectionMatrix();
 }
 export function stageSeasonShot(name){const g=game,season={spring:0,summer:1,autumn:2,winter:3}[name]??1;setSeason(g,season);g.started=true;document.getElementById('menu').classList.add('hidden');g.save.cash=48720;g.save.respect=87;g.save.done=11;g.save.weapons=[0,1,2];g.save.ammo=[62,24,36];g.save.upgrades=['engine','nos','armor'];g.save.packages=[0,2,4,6,8,9,11];g.save.races=[61.2,74.3,null];g.save.jumps=[0,1];Object.assign(g.mission,{index:11,status:'active',phase:1,timer:96,progress:15,started:true});g.combat.weapon=2;
+  // The staged camera and vehicle positions are stationary, so their sun map is reusable.
+  g.renderer.shadowMap.autoUpdate=false;g.renderer.shadowMap.needsUpdate=true;
   if(name==='autumn'){
     g.flying=g.parkedHeli;Object.assign(g.flying,{x:-65,z:-85,y:78,heading:.55,speed:28});Object.assign(g.player,{x:-65,z:-85,y:78,heading:.55});g.flying.mesh.position.set(-65,78,-85);g.flying.mesh.rotation.y=.55;g.flying.cone.visible=false;g.avatar.mesh.visible=false;g.save.done=6;g.save.cash=21850;g.save.respect=61;Object.assign(g.mission,{index:6,phase:1,timer:142,progress:3});g.dialogue='Luz is on the Glass Quarter roof. Keep the Kite steady. Watch that crosswind.';g.dj='Mara on SOL WAVE: Orange leaves over a city that never slows down.';
   }else if(name==='spring'){

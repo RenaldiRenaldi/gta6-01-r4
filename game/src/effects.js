@@ -31,6 +31,7 @@ export function createEffects(g){
     for(const f of fires){for(let i=0;i<f.flames.length;i++){const a=f.flames[i],cycle=(t*.7+a.phase)%1,m=a.m;m.position.set(a.x,1+cycle*5*f.size,a.z);m.scale.set((1-cycle)*(.7+Math.sin(t*7+i)*.12)*f.size,(1.8-cycle)*f.size,(1-cycle)*.65*f.size);m.rotation.set(t*.6+i,t+i,Math.sin(t*3+i)*.2);}
       for(const a of f.smoke){const cycle=(t*.065+a.phase)%1;a.m.position.set(a.x+cycle*4,4+cycle*24,a.x+Math.sin(cycle*6)*2);a.m.scale.setScalar((5+cycle*12)*f.size);a.m.material.opacity=(1-cycle)*.48;a.m.material.rotation=t*.12+a.phase;}
       f.light.intensity=90+Math.sin(t*15)*25+Math.sin(t*23)*15;f.glow.material.opacity=.18+Math.sin(t*10)*.04;
+      if(!g.shot&&g.started&&g.player.y<4&&distance(f,g.player)<3.8*f.size){g.damage(dt*12);if(g.car)g.car.health=Math.max(0,g.car.health-dt*9);}
     }
     for(const p of fighters){const flee=p.action===0&&!p.cop;p.x=p.homeX+(flee?Math.sin(t*.8+p.phase)*3:Math.sin(t*2+p.phase)*.4);p.z=p.homeZ+(flee?Math.cos(t*.8+p.phase)*3:Math.sin(t*2.3+p.phase)*.65);p.heading=p.cop?Math.PI:0;posePerson(p,t,true);if(!flee){p.limbs[1].rotation.x=-1.25+Math.sin(t*6+p.phase)*.7;p.limbs[3].rotation.x=-1.3+Math.cos(t*6+p.phase)*.7;}}
     for(let i=debris.length-1;i>=0;i--){const d=debris[i];d.life-=dt;if(d.m.position.y>.12){d.vy-=dt*20;d.m.position.x+=d.vx*dt;d.m.position.y=Math.max(.12,d.m.position.y+d.vy*dt);d.m.position.z+=d.vz*dt;d.m.rotation.x+=dt*4;}if(d.life<0){g.scene.remove(d.m);debris.splice(i,1);}}
