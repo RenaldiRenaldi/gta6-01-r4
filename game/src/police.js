@@ -22,5 +22,5 @@ export function updatePolice(g,dt){
   if(stars>=3&&!p.heli){p.heli=createHelicopter(g.scene,p.lastSeen.x-35,p.lastSeen.z+25,0x34485d);p.heli.y=32;}
   if(p.heli){const h=p.heli;h.rotor.rotation.y+=dt*35;h.tail.rotation.x+=dt*30;const focus=p.lastSeen;h.x+=(focus.x+Math.sin(g.time*.2)*20-h.x)*dt*.5;h.z+=(focus.z+Math.cos(g.time*.2)*24-h.z)*dt*.5;h.y=27+Math.sin(g.time*.5)*3;h.heading=bearing(h,focus);h.mesh.position.set(h.x,h.y,h.z);h.mesh.rotation.y=h.heading;const visual=distance(h,g.player)<range&&lineOfSight(g.city,{...h,y:h.y},{...g.player,y:g.player.y+1});seen||=visual;h.spot.target.position.x=Math.sin(g.time*.7)*5;h.cone.rotation.z=Math.sin(g.time*.7)*.13;}
   p.seen=seen;if(seen){p.lost=0;p.lastSeen={x:g.player.x,z:g.player.z};p.mode='VISUAL CONTACT';}else{p.lost+=dt;p.mode=p.lost<5?'BREAKING CONTACT':'SEARCHING / LAST KNOWN';}if(p.lost>12){p.heat=Math.max(0,p.heat-dt*.16);p.mode='COOLING DOWN';}
-  if(stars>=4&&p.blockTimer<=0&&Math.abs(g.speed)>10){p.blockTimer=24;makeRoadblock(g);}for(const b of p.roadblocks)b.age+=dt;
+  if(stars>=4&&p.blockTimer<=0&&Math.abs(g.speed)>10){p.blockTimer=24;makeRoadblock(g);}for(let i=p.roadblocks.length-1;i>=0;i--){const b=p.roadblocks[i];b.age+=dt;if(b.age>60&&distance(b,g.player)>90){for(const car of b.cars){if(car!==g.car)g.scene.remove(car.mesh);p.units=p.units.filter(c=>c!==car);}p.roadblocks.splice(i,1);}}
 }

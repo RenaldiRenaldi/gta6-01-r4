@@ -1,7 +1,7 @@
 {
   "viewport": {"width":960,"height":600},
   "format":"jpeg",
-  "capture":"Direct Chromium render; no compositing; 960x600; each image at most 81920 bytes",
+  "capture":"Direct Chromium render at device scale 1.5 downsampled by Chromium to CSS pixels; no editing or compositing; 960x600; each image at most 81920 bytes",
   "shots":[
     {"file":"1-summer-hero.jpg","url":"/?shot=summer","season":"SUMMER","description":"163 km/h five-star reserve escape after the storm. Falcon searchlight, six police cars, burning barricade, citizens against police, wet neon and readable crew comms."},
     {"file":"2-spring-market.jpg","url":"/?shot=spring","season":"SPRING","description":"Shotgun cover battle in a crowded blossom market during light showers; shoppers, vendors, police pursuit, mission timer and dispatch."},

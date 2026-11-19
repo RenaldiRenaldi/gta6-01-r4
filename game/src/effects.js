@@ -9,9 +9,9 @@ export function createEffects(g){
   const flameGeometry=new T.IcosahedronGeometry(1,1),smokeGeometry=new T.IcosahedronGeometry(1,1);
   function burn(x,z,size=1){const root=new T.Group();g.scene.add(root);root.position.set(x,0,z);const flames=[],smoke=[];
     for(let i=0;i<18;i++){const m=new T.Mesh(flameGeometry,emissive(i%3===0?0xffde6a:i%2?0xff621a:0xffa52b,2.3));root.add(m);flames.push({m,phase:rand()*6,x:(rand()-.5)*3*size,z:(rand()-.5)*3*size,size});}
-    for(let i=0;i<13;i++){const m=new T.Mesh(smokeGeometry,new T.MeshStandardMaterial({color:i%2?0x33313b:0x504551,transparent:true,opacity:.68,roughness:1,depthWrite:false}));root.add(m);smoke.push({m,phase:i/13,x:(rand()-.5)*2});}
+    for(let i=0;i<13;i++){const m=new T.Sprite(new T.SpriteMaterial({map:soft,color:i%2?0x282b37:0x52424a,transparent:true,opacity:.58,depthWrite:false}));root.add(m);smoke.push({m,phase:i/13,x:(rand()-.5)*2});}
     const glow=new T.Sprite(new T.SpriteMaterial({map:soft,color:0xff6e15,transparent:true,opacity:.25,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false}));glow.position.y=3;glow.scale.set(13*size,16*size,1);root.add(glow);
-    const light=new T.PointLight(0xff681b,200,37,1.6);light.position.set(0,3,0);root.add(light);g.city.reflect(x,z-7,0xff772a,8*size,24,.7);const f={root,x,z,flames,smoke,light,size,glow};fires.push(f);return f;
+    const light=new T.PointLight(0xff681b,95,33,1.6);light.position.set(0,3,0);root.add(light);g.city.reflect(x,z-7,0xff772a,8*size,24,.7);const f={root,x,z,flames,smoke,light,size,glow};fires.push(f);return f;
   }
   function explode(x,z){
     if(fires.some(f=>distance(f,{x,z})<4))return;burn(x,z,1.2);g.shake=.45;sound('explosion');
@@ -29,8 +29,8 @@ export function createEffects(g){
   function attachPoliceLights(car){for(const [sx,color] of [[-.7,0x2584ff],[.7,0xff284a]]){const streak=g.city.reflect(car.x+sx,car.z-4,color,2.4,18,.7);policeStreaks.push({car,streak,sx});}}
   function update(dt){const t=g.time;
     for(const f of fires){for(let i=0;i<f.flames.length;i++){const a=f.flames[i],cycle=(t*.7+a.phase)%1,m=a.m;m.position.set(a.x,1+cycle*5*f.size,a.z);m.scale.set((1-cycle)*(.7+Math.sin(t*7+i)*.12)*f.size,(1.8-cycle)*f.size,(1-cycle)*.65*f.size);m.rotation.set(t*.6+i,t+i,Math.sin(t*3+i)*.2);}
-      for(const a of f.smoke){const cycle=(t*.065+a.phase)%1;a.m.position.set(a.x+cycle*4,4+cycle*24,a.x+Math.sin(cycle*6)*2);a.m.scale.setScalar((1.4+cycle*4.5)*f.size);a.m.material.opacity=(1-cycle)*.65;a.m.rotation.y=t*.15+a.phase;}
-      f.light.intensity=170+Math.sin(t*15)*45+Math.sin(t*23)*25;f.glow.material.opacity=.18+Math.sin(t*10)*.04;
+      for(const a of f.smoke){const cycle=(t*.065+a.phase)%1;a.m.position.set(a.x+cycle*4,4+cycle*24,a.x+Math.sin(cycle*6)*2);a.m.scale.setScalar((5+cycle*12)*f.size);a.m.material.opacity=(1-cycle)*.48;a.m.material.rotation=t*.12+a.phase;}
+      f.light.intensity=90+Math.sin(t*15)*25+Math.sin(t*23)*15;f.glow.material.opacity=.18+Math.sin(t*10)*.04;
     }
     for(const p of fighters){const flee=p.action===0&&!p.cop;p.x=p.homeX+(flee?Math.sin(t*.8+p.phase)*3:Math.sin(t*2+p.phase)*.4);p.z=p.homeZ+(flee?Math.cos(t*.8+p.phase)*3:Math.sin(t*2.3+p.phase)*.65);p.heading=p.cop?Math.PI:0;posePerson(p,t,true);if(!flee){p.limbs[1].rotation.x=-1.25+Math.sin(t*6+p.phase)*.7;p.limbs[3].rotation.x=-1.3+Math.cos(t*6+p.phase)*.7;}}
     for(let i=debris.length-1;i>=0;i--){const d=debris[i];d.life-=dt;if(d.m.position.y>.12){d.vy-=dt*20;d.m.position.x+=d.vx*dt;d.m.position.y=Math.max(.12,d.m.position.y+d.vy*dt);d.m.position.z+=d.vz*dt;d.m.rotation.x+=dt*4;}if(d.life<0){g.scene.remove(d.m);debris.splice(i,1);}}

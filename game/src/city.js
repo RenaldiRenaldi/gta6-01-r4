@@ -12,7 +12,7 @@ export function buildCity(scene){
   ground(2400,2400,0,0,waterMat,-1);ground(644,644,0,0,groundMat,-.1);ground(24,640,333,0,mats.sand,0);
   // Broken, anisotropic streaks are real world-space emissive reflection geometry.
   const rc=document.createElement('canvas');rc.width=64;rc.height=256;const r=rc.getContext('2d');
-  const grad=r.createRadialGradient(32,60,0,32,105,150);grad.addColorStop(0,'rgba(255,255,255,.95)');grad.addColorStop(.5,'rgba(255,255,255,.3)');grad.addColorStop(1,'transparent');r.fillStyle=grad;r.fillRect(0,0,64,256);r.globalCompositeOperation='destination-out';
+  r.save();r.scale(1,4);const grad=r.createRadialGradient(32,25,0,32,25,32);grad.addColorStop(0,'rgba(255,255,255,.85)');grad.addColorStop(.45,'rgba(255,255,255,.28)');grad.addColorStop(1,'transparent');r.fillStyle=grad;r.fillRect(0,0,64,64);r.restore();r.globalCompositeOperation='destination-out';
   for(let i=0;i<100;i++){r.globalAlpha=.2+rand()*.7;r.fillRect(0,rand()*256,64,1+rand()*3);}const reflectionTexture=new T.CanvasTexture(rc);
   function reflect(x,z,color,w=4,d=20,opacity=.4){const m=ground(w,d,x,z,new T.MeshBasicMaterial({map:reflectionTexture,color,transparent:true,opacity,depthWrite:false,blending:T.AdditiveBlending,toneMapped:false}),.066+rand()*.005);reflections.push(m);return m;}
   for(let n=-4;n<=4;n++){
@@ -25,9 +25,10 @@ export function buildCity(scene){
   const colors=['#acb2a0','#bd9b89','#638c9c','#bd7b82','#7d98a4','#d3bb9a'];
   for(let n=0;n<6;n++){
     const c=document.createElement('canvas');c.width=128;c.height=256;const g=c.getContext('2d');g.fillStyle=colors[n];g.fillRect(0,0,128,256);
-    for(let y=0;y<256;y+=20){g.fillStyle='rgba(20,36,45,.25)';g.fillRect(0,y,128,2);for(let x=5;x<128;x+=16){g.fillStyle=rand()>.58?'#ffdd92':'#294655';g.fillRect(x,y+4,9,12);g.fillStyle='#89a6ad';g.fillRect(x,y+16,10,2);}}
-    const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;
-    buildingMats.push(material(0xffffff,{map:tex,emissiveMap:tex,emissive:0xffca8a,emissiveIntensity:.3,roughness:.42+n*.07,metalness:.12}));
+    const ec=document.createElement('canvas');ec.width=128;ec.height=256;const eg=ec.getContext('2d');eg.fillStyle='#000000';eg.fillRect(0,0,128,256);
+    for(let y=0;y<256;y+=20){g.fillStyle='rgba(20,36,45,.25)';g.fillRect(0,y,128,2);for(let x=5;x<128;x+=16){const lit=rand()>.58;g.fillStyle=lit?'#d6be87':'#294655';g.fillRect(x,y+4,9,12);if(lit){eg.fillStyle='#ffd696';eg.fillRect(x,y+4,9,12);}g.fillStyle='#89a6ad';g.fillRect(x,y+16,10,2);}}
+    const tex=new T.CanvasTexture(c),et=new T.CanvasTexture(ec);tex.colorSpace=et.colorSpace=T.SRGBColorSpace;
+    buildingMats.push(material(0xffffff,{map:tex,emissiveMap:et,emissive:0xffca8a,emissiveIntensity:.3,roughness:.42+n*.07,metalness:.12}));
   }
   function building(x,z,w,d,h,index){
     box(x,h/2,z,w,h,d,buildingMats[(index+60)%6]);box(x,h+.4,z,w+1,.8,d+1,mats.roof);
@@ -50,12 +51,16 @@ export function buildCity(scene){
     for(const o of [-3,3])box(x+o,1.5,z-4.08,2.2,2.4,.08,mats.dark);reflect(x*.5,z-16,color,7,29,.4);
   }
   sign('SOLMARA / PEARL MILE',0,10,150,23,'#ffd4a0');
-  const crowns=[],dummy=new T.Object3D();
-  function tree(x,z,palm=false){box(x,3,z,.4,6,.4,mats.trunk);if(palm){for(let a=0;a<6;a++)box(x+Math.sin(a*1.047)*1.8,6,z+Math.cos(a*1.047)*1.8,.6,.3,5,mats.leaf,a*1.047);}else crowns.push([x,6.4,z]);trees.push({x,z});box(x,.18,z,2,.35,2,mats.curb);}
+  const crowns=[],palmVertices=[],dummy=new T.Object3D();
+  function tree(x,z,palm=false){box(x,3.5,z,.35,7,.35,mats.trunk);if(palm){for(let a=0;a<8;a++){const angle=a*Math.PI/4,s=Math.sin(angle),c=Math.cos(angle),mx=x+s*2.7,mz=z+c*2.7;palmVertices.push(x,7,z,mx+c*.65,7.6,mz-s*.65,x+s*5.2,5.8,z+c*5.2,x,7,z,x+s*5.2,5.8,z+c*5.2,mx-c*.65,7.6,mz+s*.65);}}else crowns.push([x,6.4,z]);trees.push({x,z});box(x,.18,z,2,.35,2,mats.curb);}
   for(let x=-4;x<=4;x++)for(let z=-4;z<=4;z++){
-    tree(x*64-14,z*64+23,x>=3);tree(x*64+14,z*64-21,x>=3);
+    tree(x*64-14,z*64+23,x>=3||x===0&&z%2===0);tree(x*64+14,z*64-21,x>=3||x===0&&z%2===0);
     for(const side of [-1,1]){const px=x*64+side*12.7,pz=z*64-10;box(px,4,pz,.17,8,.17,mats.dark);box(px-side,7.9,pz,2.1,.15,.5,mats.metal);box(px-side*1.5,7.76,pz,.8,.12,.5,mats.gold);const glow=reflect(px-side*2,pz-1,0xffbd78,5,10,.15);lamps.push(glow);}
   }
+  for(const z of [-8,36,100])for(const x of [-14.5,14.5])tree(x,z,true);
+  const palmGeo=new T.BufferGeometry();palmGeo.setAttribute('position',new T.Float32BufferAttribute(palmVertices,3));palmGeo.computeVertexNormals();const palmMat=material(0x277760,{side:T.DoubleSide}),palmMesh=new T.Mesh(palmGeo,palmMat);palmMesh.castShadow=true;scene.add(palmMesh);
+  sign('MAREA / NIGHT MARKET',-18,7.2,-4,12,'#ff5da6');
+  for(const x of [-13,13]){box(x,.17,5,.15,.1,35,x<0?mats.red:mats.cyan);reflect(x*.65,0,x<0?0xff367f:0x34ebd0,3,32,.5);}
   // A real market street: awnings, produce crates, cafe tables and workshop benches.
   const stallColors=[0xf1647f,0x44bea8,0xe3b15a];
   for(let i=0;i<18;i++){

@@ -31,7 +31,7 @@ export const game={scene,camera,renderer,city,population,shot,input,save:shot?fr
   },
 };
 game.env=createEnvironment(scene,city);setSeason(game,game.save.season);game.env.hour=game.save.hour;
-game.garage=[createCar(scene,3,-57,0xe37c65),createCar(scene,6,-76,0x4caba6,'CORA SPORT')];game.parkedHeli=createHelicopter(scene,-256,192);
+game.garage=[createCar(scene,3,-59,0xe37c65),createCar(scene,6,-76,0x4caba6,'CORA SPORT')];game.parkedHeli=createHelicopter(scene,-256,192);
 game.mission=createMissions(game);game.activities=createActivities(game);game.effects=createEffects(game);game.ui=createInterface(game);
 const beacon=new T.Mesh(new T.CylinderGeometry(.25,.8,10,12,1,true),new T.MeshBasicMaterial({color:0x79ffd6,transparent:true,opacity:.25,depthWrite:false,side:T.DoubleSide}));scene.add(beacon);
 const ring=new T.Mesh(new T.TorusGeometry(4,.12,6,40),new T.MeshBasicMaterial({color:0x92ffda}));ring.rotation.x=-Math.PI/2;scene.add(ring);
@@ -61,6 +61,7 @@ export function interact(){
 let recovery=0;
 export function simulation(dt){
   const g=game;g.time+=dt;g.shake=Math.max(0,g.shake-dt);g.slow=Math.max(0,g.slow-dt);g.muzzle=Math.max(0,g.muzzle-dt);
+  if(g.inCover&&![...g.traffic,...g.garage,...g.police.units].some(c=>distance(c,g.player)<6))g.inCover=false;
   if(g.shopOpen||g.ui.briefOpen){updateEnvironment(g,dt);g.effects.update(dt);return;}
   const i={forward:input.held('w')||input.held('arrowup'),back:input.held('s')||input.held('arrowdown'),steer:(input.held('a')||input.held('arrowleft')?1:0)-(input.held('d')||input.held('arrowright')?1:0),boost:input.held('shift'),brake:input.held(' '),up:input.held('h')||input.held(' '),down:input.held('control')};
   if(g.car){driveCar(g.car,dt,i,g);Object.assign(g.player,{x:g.car.x,y:g.car.y,z:g.car.z,heading:g.car.heading});g.speed=g.car.speed;}
@@ -75,32 +76,35 @@ export function simulation(dt){
 function updateCamera(dt){const g=game,p=g.player;let target=missionTarget(g);if(g.activities.race){const a=g.activities,r=a.race.points[a.checkpoint];target={x:r[0],z:r[1]};}beacon.visible=ring.visible=!!target;if(target){beacon.position.set(target.x,(target.y||0)+5,target.z);ring.position.set(target.x,(target.y||0)+.16,target.z);}
   const desired=new T.Vector3(),look=new T.Vector3();
   if(g.shot==='autumn'){desired.set(p.x-41,p.y+23,p.z-47);look.set(p.x+29,p.y-35,p.z+45);}
-  else if(g.shot==='spring'){desired.set(p.x+7.8,5,p.z-13.5);look.set(p.x-1.5,2.6,p.z+17);}
-  else if(g.shot){desired.set(p.x+8,5.5,p.z-15.5);look.set(p.x-1,3.1,p.z+20);}
+  else if(g.shot==='spring'){desired.set(p.x+6,5.5,p.z-12);look.set(p.x-1,2.4,p.z+12);}
+  else if(g.shot){desired.set(p.x+6,5.7,p.z-15.5);look.set(p.x-1,2.7,p.z+18);}
   else if(!g.started){desired.set(17,7,-90);look.set(0,3,-40);}
   else{const behind=g.flying?26:g.car?13:6.5,up=g.flying?11:g.car?5:3.3;desired.set(p.x-Math.sin(p.heading)*behind+(g.car?0:1.4),p.y+up,p.z-Math.cos(p.heading)*behind);look.set(p.x+Math.sin(p.heading)*7,p.y+(g.flying?0:1.5),p.z+Math.cos(p.heading)*7);if(!lineOfSight(city,{...p,y:p.y+2},{x:desired.x,y:desired.y,z:desired.z}))desired.lerp(new T.Vector3(p.x,p.y+3,p.z),.6);}
   if(g.cameraSnap){camera.position.copy(desired);g.cameraSnap=false;}else camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(look);camera.fov=g.shot==='autumn'?63:g.shot?59:g.flying?62:57+Math.min(7,Math.abs(g.speed)*.08);camera.updateProjectionMatrix();
 }
 export function stageSeasonShot(name){const g=game,season={spring:0,summer:1,autumn:2,winter:3}[name]??1;setSeason(g,season);g.started=true;document.getElementById('menu').classList.add('hidden');g.save.cash=48720;g.save.respect=87;g.save.done=11;g.save.weapons=[0,1,2];g.save.ammo=[62,24,36];g.save.upgrades=['engine','nos','armor'];g.save.packages=[0,2,4,6,8,9,11];g.save.races=[61.2,74.3,null];g.save.jumps=[0,1];Object.assign(g.mission,{index:11,status:'active',phase:1,timer:96,progress:15,started:true});g.combat.weapon=2;
   if(name==='autumn'){
-    g.flying=g.parkedHeli;Object.assign(g.flying,{x:-88,z:-79,y:112,heading:.55,speed:28});Object.assign(g.player,{x:-88,z:-79,y:112,heading:.55});g.flying.mesh.position.set(-88,112,-79);g.flying.mesh.rotation.y=.55;g.flying.cone.visible=false;g.avatar.mesh.visible=false;g.save.done=6;g.save.cash=21850;g.save.respect=61;Object.assign(g.mission,{index:6,phase:1,timer:142,progress:3});g.dialogue='Luz is on the Glass Quarter roof. Keep the Kite steady. Watch that crosswind.';g.dj='Mara on SOL WAVE: Orange leaves over a city that never slows down.';
+    g.flying=g.parkedHeli;Object.assign(g.flying,{x:-65,z:-85,y:78,heading:.55,speed:28});Object.assign(g.player,{x:-65,z:-85,y:78,heading:.55});g.flying.mesh.position.set(-65,78,-85);g.flying.mesh.rotation.y=.55;g.flying.cone.visible=false;g.avatar.mesh.visible=false;g.save.done=6;g.save.cash=21850;g.save.respect=61;Object.assign(g.mission,{index:6,phase:1,timer:142,progress:3});g.dialogue='Luz is on the Glass Quarter roof. Keep the Kite steady. Watch that crosswind.';g.dj='Mara on SOL WAVE: Orange leaves over a city that never slows down.';
   }else if(name==='spring'){
     Object.assign(g.player,{x:-1,z:-55,y:0,heading:.2});g.combat.weapon=1;g.inCover=true;g.avatar.gun.visible=true;Object.assign(g.mission,{index:2,phase:0,timer:134,progress:0,started:true});g.save.done=2;g.save.cash=9450;g.save.respect=29;g.dialogue='Stay behind the taxi. They’re pushing through the market. I’ve got your exit.';g.dj='Niko: Light showers, market crowds, three patrol units. Mind the people, Dani.';g.police.heat=3;g.police.seen=true;g.police.mode='VISUAL CONTACT';g.police.lastSeen={x:-1,z:-55};
     const taxi=g.traffic[0];Object.assign(taxi,{x:1,z:-52,heading:.18,speed:0});syncCar(taxi);addUnit(g,-4,-27);addUnit(g,5,-17);addUnit(g,3,-70);g.police.units.forEach((u,i)=>u.status=i===2?'FLANKING':'IN PURSUIT');
     const points=[[-7,-26],[6,-22],[-8,-15],[8,-8]];for(const [x,z] of points){const rival=createPerson(scene,x,z,0x96536e,true);rival.heading=Math.PI;posePerson(rival,1);rival.limbs[1].rotation.x=-1.2;g.combat.enemies.push(rival);}g.muzzle=.1;
+    for(const [a,b] of [[[-.5,1.3,-54],[6,1.3,-22]],[[-7,1.4,-26],[1,1.3,-51]]]){const line=new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(...a),new T.Vector3(...b)]),new T.LineBasicMaterial({color:0xffcc83,transparent:true,opacity:.8,toneMapped:false}));scene.add(line);}
+    const flash=new T.Mesh(new T.IcosahedronGeometry(.19),new T.MeshBasicMaterial({color:0xffd177,toneMapped:false}));flash.position.set(-.5,1.3,-54);scene.add(flash);
   }else{
-    const z=-22;g.car=g.garage[0];Object.assign(g.car,{x:0,z,y:0,heading:-.04,speed:45.3,nitro:.68,health:78,turn:1});Object.assign(g.player,{x:0,z,y:0,heading:-.04});g.car.flame.visible=true;syncCar(g.car,1);g.avatar.mesh.visible=false;g.police.heat=5;g.police.seen=true;g.police.mode='VISUAL CONTACT';g.police.lastSeen={x:0,z};
-    for(const [x,offset] of [[-4.3,-5],[5.3,-11],[-4,17],[5,27]]){const c=addUnit(g,x,z+offset);c.speed=36;c.status=offset<0?'RAMMING':'INTERCEPT';c.heading=offset===17?-.1:0;syncCar(c,1);}
-    makeRoadblock(g,{x:0,z:34});g.police.heli=createHelicopter(scene,-5,12,0x31465d);Object.assign(g.police.heli,{x:-5,z:12,y:16,heading:.25});g.police.heli.mesh.position.set(-5,16,12);g.police.heli.mesh.rotation.y=.25;g.police.heli.cone.material.uniforms.opacity.value=.23;g.effects.igniteBattle(0,40);g.dialogue='The reserve is in your trunk. Cut through the barricade, Dani. Bring the money home.';g.dj=name==='winter'?'Niko: Snow on the Mile. Fire at the reserve. Five stars and no turning back.':'Niko: FIVE STARS on Pearl Mile. Falcon overhead. The whole city is watching.';
+    const z=-22;g.car=g.garage[0];Object.assign(g.car,{x:0,z,y:0,heading:-.04,speed:45.3,nitro:.68,health:78,turn:1});Object.assign(g.player,{x:0,z,y:0,heading:-.04});g.speed=g.car.speed;g.car.flame.visible=true;syncCar(g.car,1);g.avatar.mesh.visible=false;g.police.heat=5;g.police.seen=true;g.police.mode='VISUAL CONTACT';g.police.lastSeen={x:0,z};
+    for(const [x,offset] of [[-4.3,-5],[-5.3,-12],[-4,17],[5,27]]){const c=addUnit(g,x,z+offset);c.speed=36;c.status=offset<0?'RAMMING':'INTERCEPT';c.heading=offset===17?-.1:0;syncCar(c,1);}
+    makeRoadblock(g,{x:0,z:24});g.police.heli=createHelicopter(scene,-5,8,0x31465d);Object.assign(g.police.heli,{x:-5,z:8,y:16,heading:.25});g.police.heli.mesh.position.set(-5,16,8);g.police.heli.mesh.rotation.y=.25;g.police.heli.cone.material.uniforms.opacity.value=.12;g.effects.igniteBattle(0,18);g.dialogue='The reserve is in your trunk. Cut through the barricade, Dani. Bring the money home.';g.dj=name==='winter'?'Niko: Snow on the Mile. Fire at the reserve. Five stars and no turning back.':'Niko: FIVE STARS on Pearl Mile. Falcon overhead. The whole city is watching.';
     if(name==='winter'){g.env.hour=22.1;g.car.paint.color.setHex(0x53b8b1);g.dialogue='They lit the barricades. Follow my voice through the snow. Pearl House is still open.';}
     g.traffic.slice(0,5).forEach((c,i)=>{Object.assign(c,{x:i%2?5:-5,z:55+i*16,axis:1,dir:1,heading:0});syncCar(c);});
   }
   Object.assign(g.avatar,g.player);posePerson(g.avatar,1,name==='spring');if(name==='spring'){g.avatar.limbs[1].rotation.x=-1.3;g.avatar.limbs[3].rotation.x=-1.3;g.avatar.mesh.position.y=-.25;}
-  g.time=5.4;updateCrowds(g,0);g.effects.update(0);g.ui.notify('',0);document.getElementById('toast').classList.remove('show');g.ui.draw(0);g.cameraSnap=true;
+  g.people.slice(0,100).forEach((p,i)=>{p.x=(i%2?1:-1)*(12.6+(i%5)*.85);p.z=-44+Math.floor(i/2)*1.8;p.homeX=p.x;p.homeZ=p.z;});
+  g.speed=g.car?.speed||g.flying?.speed||0;g.time=5.4;updateCrowds(g,0);g.effects.update(0);g.ui.notify('',0);document.getElementById('toast').classList.remove('show');g.ui.draw(1);g.cameraSnap=true;
 }
 if(shot)stageSeasonShot(shot);
 let previous=performance.now(),frames=0;
-function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-previous)/1000);previous=now;controls();if(game.shot){game.time+=dt;updateEnvironment(game,dt);updateCrowds(game,0);game.effects.update(dt);game.speed=game.car?.speed||game.flying?.speed||0;for(const c of game.police.units)syncCar(c,game.time);if(game.police.heli){const h=game.police.heli;h.rotor.rotation.y=game.time*34;h.cone.rotation.z=Math.sin(game.time*.7)*.1;}if(game.flying)game.flying.rotor.rotation.y=game.time*34;}else if(game.started&&!game.paused)simulation(game.slow>0?dt*.5:dt);else{updateEnvironment(game,dt);updateCrowds(game,0);}
+function frame(now){requestAnimationFrame(frame);const dt=clamp((now-previous)/1000,0,.05);previous=now;controls();if(game.shot){game.time+=dt;updateEnvironment(game,dt);updateCrowds(game,0);game.effects.update(dt);game.speed=game.car?.speed||game.flying?.speed||0;for(const c of game.police.units)syncCar(c,game.time);if(game.police.heli){const h=game.police.heli;h.rotor.rotation.y=game.time*34;h.cone.rotation.z=Math.sin(game.time*.7)*.1;}if(game.flying)game.flying.rotor.rotation.y=game.time*34;}else if(game.started&&!game.paused)simulation(game.slow>0?dt*.5:dt);else{updateEnvironment(game,dt);updateCrowds(game,0);}
   updateCamera(dt||.016);game.ui.draw(dt);view.draw();pressed.clear();if(++frames>4)window.__shotReady=true;
 }
 document.addEventListener('visibilitychange',()=>{held.clear();mouseDown=false;if(document.hidden&&game.started&&!shot){game.paused=true;document.getElementById('menu').classList.remove('hidden');}});
