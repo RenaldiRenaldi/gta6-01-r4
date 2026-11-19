@@ -24,3 +24,5 @@ Procedural original geometry, locally painted window/sign atlases, synthesized o
 ## Handoff
 
 `MAKEFUN_OUTPUT_DIR=out node main.ts` uses the kit's unmodified dossier builder. Three.js is the vendored minified renderer (MIT); all game code and artwork are original. This R4 build retains R3's original city and crew concepts while rewriting the implementation in this recorded session. Do not seal or submit from this build: the parent handles that step.
+
+The browser regression suite is `node tools/verify.mjs`; it covers normal entry/exit/driving, weapons, purchases, police dispatch, every story success/timeout path, roof extraction, the heist riot and persistent rewards. `node tools/capture.mjs` launches a temporary local server and captures all four URLs directly from Chromium, selecting JPEG quality under the 80 KiB cap. Its Playwright and Chromium paths describe this build machine; the game itself has no such dependency.

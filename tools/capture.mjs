@@ -16,6 +16,6 @@ for(const [i,season] of ['summer','spring','autumn','winter'].entries()){
   let bytes;
   for(let quality=84;quality>=48;quality-=4){bytes=await page.screenshot({path:'screenshots/'+name+'.jpg',type:'jpeg',quality,scale:'css'});if(bytes.length<=81920)break;}
   if(bytes.length>81920)throw new Error(name+' exceeds the requested 80 KiB cap');
-  console.log(JSON.stringify({name:season,...await page.evaluate(()=>({ready:window.__shotReady,season:window.solmara.game.env.season,speed:window.solmara.game.speed,display:document.getElementById('speed').textContent,crowd:window.solmara.game.people.length,draws:window.solmara.game.renderer.info.render.calls})),errors}));
+  console.log(JSON.stringify({name:season,bytes:bytes.length,...await page.evaluate(()=>({ready:window.__shotReady,season:window.solmara.game.env.season,speed:window.solmara.game.speed,display:document.getElementById('speed').textContent,crowd:window.solmara.game.people.length})),errors}));
 }
 await browser.close();server.kill();if(errors.length)process.exitCode=1;

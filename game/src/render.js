@@ -8,13 +8,14 @@ export function createRenderer(canvas){
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(59,innerWidth/innerHeight,.15,1400);
   // Thresholded separable bloom at quarter resolution; HDR light bars bloom,
   // while road markings and the DOM interface retain sharp edges.
-  const target=new T.WebGLRenderTarget(innerWidth,innerHeight,{type:T.HalfFloatType});
+  const pixelScale=Math.min(devicePixelRatio,1.5);
+  const target=new T.WebGLRenderTarget(Math.round(innerWidth*pixelScale),Math.round(innerHeight*pixelScale),{type:T.HalfFloatType});
   const a=new T.WebGLRenderTarget(Math.ceil(innerWidth/4),Math.ceil(innerHeight/4),{type:T.HalfFloatType}),b=a.clone();
   const postScene=new T.Scene(),postCamera=new T.OrthographicCamera(-1,1,1,-1,0,1),quad=new T.Mesh(new T.PlaneGeometry(2,2));postScene.add(quad);
   const vertex='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
   const blur=new T.ShaderMaterial({uniforms:{image:{value:null},stepSize:{value:new T.Vector2()},threshold:{value:0}},vertexShader:vertex,fragmentShader:'uniform sampler2D image;uniform vec2 stepSize;uniform float threshold;varying vec2 vUv;vec3 sampleAt(vec2 p){vec3 c=texture2D(image,p).rgb;return c*max(0.,max(c.r,max(c.g,c.b))-threshold)/max(.001,max(c.r,max(c.g,c.b)));}void main(){vec3 c=sampleAt(vUv)*.2;for(int i=1;i<5;i++){float w=(5.-float(i))*.04;c+=(sampleAt(vUv+stepSize*float(i))+sampleAt(vUv-stepSize*float(i)))*w;}gl_FragColor=vec4(c,1.);}'});
   const combine=new T.ShaderMaterial({uniforms:{image:{value:target.texture},glow:{value:b.texture}},vertexShader:vertex,fragmentShader:'uniform sampler2D image;uniform sampler2D glow;varying vec2 vUv;void main(){vec3 c=texture2D(image,vUv).rgb+texture2D(glow,vUv).rgb*.24;float vig=1.-.16*pow(length((vUv-.5)*1.35),2.);gl_FragColor=vec4(c*vig,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}',toneMapped:true});
-  function resize(){renderer.setSize(innerWidth,innerHeight);target.setSize(innerWidth,innerHeight);a.setSize(Math.ceil(innerWidth/4),Math.ceil(innerHeight/4));b.setSize(a.width,a.height);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
+  function resize(){renderer.setSize(innerWidth,innerHeight);target.setSize(Math.round(innerWidth*pixelScale),Math.round(innerHeight*pixelScale));a.setSize(Math.ceil(innerWidth/4),Math.ceil(innerHeight/4));b.setSize(a.width,a.height);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
   function draw(){renderer.setRenderTarget(target);renderer.render(scene,camera);quad.material=blur;blur.uniforms.image.value=target.texture;blur.uniforms.threshold.value=.78;blur.uniforms.stepSize.value.set(1/a.width,0);renderer.setRenderTarget(a);renderer.render(postScene,postCamera);blur.uniforms.image.value=a.texture;blur.uniforms.threshold.value=0;blur.uniforms.stepSize.value.set(0,1/a.height);renderer.setRenderTarget(b);renderer.render(postScene,postCamera);quad.material=combine;renderer.setRenderTarget(null);renderer.render(postScene,postCamera);}
   window.addEventListener('resize',resize);return {renderer,scene,camera,draw};
 }
